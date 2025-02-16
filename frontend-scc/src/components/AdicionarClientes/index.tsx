@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { Cor } from "../../types/Cor";
 import { Cliente } from "../../types/Cliente";
+import Cleave from 'cleave.js';
 
 
 type AdicionarClientesProps = {
     onClienteAdicionado: () => void;
-    clienteParaEditar?:Cliente | null;  
+    clienteParaEditar?: Cliente | null;
 };
 
 const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdicionado, clienteParaEditar }) => {
@@ -20,6 +21,30 @@ const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdiciona
         corPreferida: { id: clienteParaEditar?.corPreferida.id || "" },
         observacoes: clienteParaEditar?.observacoes || ''
     });
+
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    // UseEffect para aplicar a máscara no campo CPF
+    useEffect(() => {
+        if (inputRef.current) {
+            const cleaveInstance = new Cleave(inputRef.current, {
+                blocks: [3, 3, 3, 2],
+                delimiters: ['.', '.', '-', ''],
+            });
+
+            // Atualiza o valor do CPF no estado ao usar a máscara
+            inputRef.current.addEventListener('input', (e) => {
+                setFormData((prevData) => ({
+                    ...prevData,
+                    cpf: (e.target as HTMLInputElement).value, // Atualiza CPF no estado
+                }));
+            });
+
+            return () => {
+                cleaveInstance.destroy();
+            };
+        }
+    }, []);
 
     useEffect(() => {
         if (clienteParaEditar) {
@@ -57,7 +82,7 @@ const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdiciona
                 await axios.post("http://localhost:8080/api/clientes", formData);
                 setMessage("Cliente cadastrado com sucesso!");
             }
-    
+
 
             // 🟢 Limpa o formulário
             setFormData({
@@ -106,8 +131,9 @@ const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdiciona
                             type="text"
                             name="cpf"
                             value={formData.cpf}
-                            onChange={handleChange}
                             required
+                            ref={inputRef}
+                            onChange={handleChange}
                         />
                     </div>
 
