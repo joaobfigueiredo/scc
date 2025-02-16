@@ -6,4 +6,5 @@ export type Cliente = {
     email: string;
     cpf: string;
     corPreferida: Cor;
+    observacoes: string;
   };

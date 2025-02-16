@@ -1,23 +1,38 @@
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { Cor } from "../../types/Cor";
+import { Cliente } from "../../types/Cliente";
 
 
 type AdicionarClientesProps = {
     onClienteAdicionado: () => void;
+    clienteParaEditar?:Cliente | null;  
 };
 
-const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdicionado }) => {
+const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdicionado, clienteParaEditar }) => {
     const [cores, setCores] = useState<Cor[]>([]);
     const [corSelecionada, setCorSelecionada] = useState("");
     const [message, setMessage] = useState('');
     const [formData, setFormData] = useState({
-        nomeCompleto: '',
-        cpf: '',
-        email: '',
-        corPreferida: { id: "" },
-        observacoes: ''
+        nomeCompleto: clienteParaEditar?.nomeCompleto || '',
+        cpf: clienteParaEditar?.cpf || '',
+        email: clienteParaEditar?.email || '',
+        corPreferida: { id: clienteParaEditar?.corPreferida.id || "" },
+        observacoes: clienteParaEditar?.observacoes || ''
     });
+
+    useEffect(() => {
+        if (clienteParaEditar) {
+            setFormData({
+                nomeCompleto: clienteParaEditar.nomeCompleto,
+                cpf: clienteParaEditar.cpf,
+                email: clienteParaEditar.email,
+                corPreferida: { id: clienteParaEditar.corPreferida.id },
+                observacoes: clienteParaEditar.observacoes
+            });
+            setCorSelecionada(clienteParaEditar.corPreferida.id);
+        }
+    }, [clienteParaEditar]);
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -33,8 +48,16 @@ const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdiciona
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:8080/api/clientes", formData);
-            setMessage("Cadastro realizado com sucesso!");
+            if (clienteParaEditar) {
+                // Atualiza um cliente existente (PUT)
+                await axios.put(`http://localhost:8080/api/clientes/${clienteParaEditar.id}`, formData);
+                setMessage("Cliente atualizado com sucesso!");
+            } else {
+                // Cria um novo cliente (POST)
+                await axios.post("http://localhost:8080/api/clientes", formData);
+                setMessage("Cliente cadastrado com sucesso!");
+            }
+    
 
             // 🟢 Limpa o formulário
             setFormData({
@@ -123,7 +146,9 @@ const AdicionarClientes: React.FC<AdicionarClientesProps> = ({ onClienteAdiciona
                         ></textarea>
                     </div>
 
-                    <button type="submit" className="btn btn-success">Cadastrar</button>
+                    <button type="submit" className="btn btn-success">
+                        {clienteParaEditar ? "Salvar Alterações" : "Cadastrar"}
+                    </button>
                 </form>
             </div>
         </>

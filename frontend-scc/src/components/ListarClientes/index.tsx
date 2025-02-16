@@ -4,8 +4,9 @@ import { Cliente } from "../../types/Cliente";
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa"; // Ícones do React Icons
 
 
-const ListarClientes = () => {
+const ListarClientes: React.FC<{ onEditarCliente: (cliente: Cliente) => void }> = ({ onEditarCliente }) => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [clienteVisualizando, setClienteVisualizando] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -31,6 +32,15 @@ const ListarClientes = () => {
           console.error("Erro ao excluir cliente:", error);
         });
     }
+  };
+
+  // Função para exibir o modal visualizar cliente
+  const handleVisualizarCliente = (cliente: Cliente) => {
+    setClienteVisualizando(cliente);
+  };
+
+  const fecharModal = () => {
+    setClienteVisualizando(null); // Fechar o modal
   };
 
   return (
@@ -65,17 +75,17 @@ const ListarClientes = () => {
                   <td>{cliente.cpf}</td>
                   <td>{cliente.corPreferida.nome}</td>
                   <td className="text-center">
-                    <button className="btn btn-sm btn-info me-2">
-                      <FaEye /> {/* Ícone de Visualizar */}
+                    <button className="btn btn-sm btn-info me-2" onClick={() => handleVisualizarCliente(cliente)}>
+                      <FaEye /> 
                     </button>
-                    <button className="btn btn-sm btn-warning me-2">
-                      <FaEdit /> {/* Ícone de Editar */}
+                    <button className="btn btn-sm btn-warning me-2" onClick={() => onEditarCliente(cliente)}>
+                      <FaEdit />
                     </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => excluirCliente(cliente.id)}
                     >
-                      <FaTrash /> {/* Ícone de Excluir */}
+                      <FaTrash />
                     </button>
                   </td>
                 </tr>
@@ -84,8 +94,46 @@ const ListarClientes = () => {
           </table>
         </div>
       )}
+
+
+      {/* Modal para exibir detalhes do cliente */}
+      {clienteVisualizando && (
+        <div className="modal" style={modalStyles}>
+          <div className="modal-content" style={modalContentStyles}>
+            <h2>Detalhes do Cliente</h2>
+            <p><strong>Nome:</strong> {clienteVisualizando.nomeCompleto}</p>
+            <p><strong>Email:</strong> {clienteVisualizando.email}</p>
+            <p><strong>CPF:</strong> {clienteVisualizando.cpf}</p>
+            <p><strong>Cor Preferida:</strong> {clienteVisualizando.corPreferida.nome}</p>
+            <p><strong>Observações:</strong> {clienteVisualizando.observacoes}</p>
+            <button onClick={fecharModal}>Fechar</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
 
 export default ListarClientes;
+
+const modalStyles: React.CSSProperties = {
+  position: "fixed",
+  top: "0",
+  left: "0",
+  width: "100%",
+  height: "100%",
+  backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo escuro
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1000,
+};
+
+const modalContentStyles: React.CSSProperties = {
+  backgroundColor: "#fff",
+  padding: "20px",
+  borderRadius: "5px",
+  width: "400px",
+  maxWidth: "90%",
+};
