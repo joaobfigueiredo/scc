@@ -1,4 +1,4 @@
-package br.com.joaofigueiredo.backend_scc;
+package br.com.joaofigueiredo.scc;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
