@@ -1,0 +1,27 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: db_scc
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123mudar
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend-scc
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend-scc
+    ports:
+      - "3000:80"  # A aplicação React ficará disponível na porta 3000
+
+volumes:
+  pgdata:
