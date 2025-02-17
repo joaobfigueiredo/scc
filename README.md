@@ -11,6 +11,19 @@ git clone https://github.com/joaobfigueiredo/scc.git
 Este projeto foi gerado com [Spring initializr](https://start.spring.io/).
 Observação: para executar o projeto, é necessário ter o Java na versão 17 instalado na máquina.
 
+## Banco de dados
+
+O banco de dados preferencial é o Postgres, onde deve ser criado o schema chamado db_scc confirme está descrito no arquivo src\main\resources\application.properties. 
+Este arquivo contém as configurações do banco url, porta, usuário, senha e outros.
+Deve ser editado com as configurações da maquina onde o projeto irá rodar.
+
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/db_scc
+spring.datasource.username=postgres
+spring.datasource.password=123mudar
+```
+
+
 ## Instalar dependencias
 
 cd backend-scc
